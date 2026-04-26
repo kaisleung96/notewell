@@ -49,6 +49,10 @@ function scorePage(
     score += 10;
     reasons.push("body match");
   }
+  if (page.backlinks.length > 0) {
+    score += Math.min(page.backlinks.length * 2, 10);
+    reasons.push("backlink boost");
+  }
 
   if (score === 0) {
     return null;
