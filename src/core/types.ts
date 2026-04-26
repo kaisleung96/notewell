@@ -12,3 +12,12 @@
  * because it is rebuildable from these three.
  */
 export type VaultLayer = "raw" | "wiki" | "schema";
+
+export type ParsedMarkdown = {
+  frontmatter: Record<string, unknown>;
+  body: string;
+  title: string | null;
+  summary: string | null;
+  tags: string[];
+  parseError?: string;
+};
