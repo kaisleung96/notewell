@@ -1,0 +1,29 @@
+{
+  "name": "notewell",
+  "version": "0.0.1",
+  "description": "A lightweight Markdown-first personal LLM wiki CLI",
+  "type": "module",
+  "bin": {
+    "notewell": "./dist/cli.js"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "tsc",
+    "dev": "tsx src/cli.ts"
+  },
+  "files": [
+    "dist",
+    "src/templates"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0",
+    "vitest": "^2.1.0"
+  }
+}
