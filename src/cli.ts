@@ -9,12 +9,15 @@
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 
-import { doctorVault } from "./core/doctor.js";
-import { buildIndex } from "./core/indexer.js";
 import { initVault } from "./core/init.js";
-import { lintVault } from "./core/lint.js";
-import { appendLogEntry } from "./core/log.js";
-import { searchIndex } from "./core/search.js";
+import {
+  doctorOperation,
+  indexOperation,
+  lintOperation,
+  logOperation,
+  searchOperation,
+} from "./core/operations.js";
+import { getSearchBackend } from "./core/search-backend.js";
 
 const VERSION = "0.0.1";
 
@@ -76,7 +79,7 @@ export function buildHelpText(): string {
  * are added in Task 3 (init), Task 5 (index), Task 6 (search), Task 7 (lint),
  * Task 8 (log), Task 9 (doctor).
  */
-export function run(argv: string[]): number {
+export async function run(argv: string[]): Promise<number> {
   const [command] = argv;
   if (!command || command === "-h" || command === "--help") {
     process.stdout.write(`${buildHelpText()}\n`);
@@ -106,8 +109,11 @@ export function run(argv: string[]): number {
   }
 
   if (command === "index") {
-    const vaultDir = argv[1] ?? process.cwd();
-    const index = buildIndex(vaultDir);
+    const { vaultDir, backend } = parseDirAndBackend(argv.slice(1));
+    const index =
+      backend === "json-index"
+        ? indexOperation(vaultDir)
+        : (await getSearchBackend(backend).index(vaultDir), indexOperation(vaultDir));
     process.stdout.write(
       `Indexed ${index.pages.length} pages into ${vaultDir}/.notewell\n`,
     );
@@ -120,8 +126,11 @@ export function run(argv: string[]): number {
       process.stderr.write("notewell: search requires a query\n");
       return 1;
     }
-    const vaultDir = argv[2] ?? process.cwd();
-    const results = searchIndex(vaultDir, query);
+    const { vaultDir, backend } = parseDirAndBackend(argv.slice(2));
+    const results =
+      backend === "json-index"
+        ? searchOperation(vaultDir, query)
+        : await getSearchBackend(backend).search(vaultDir, query);
     for (const result of results) {
       process.stdout.write(
         `${result.slug}\t${result.score}\t${result.reasons.join(", ")}\t${result.title}\n`,
@@ -132,7 +141,7 @@ export function run(argv: string[]): number {
 
   if (command === "lint") {
     const vaultDir = argv[1] ?? process.cwd();
-    const findings = lintVault(vaultDir);
+    const findings = lintOperation(vaultDir);
     for (const finding of findings) {
       process.stdout.write(
         `${finding.severity}\t${finding.code}\t${finding.path}\t${finding.message}\n`,
@@ -147,7 +156,7 @@ export function run(argv: string[]): number {
       process.stderr.write("notewell: log requires a message\n");
       return 1;
     }
-    const entry = appendLogEntry(
+    const entry = logOperation(
       parsed.vaultDir,
       parsed.message,
       parsed.type ? { type: parsed.type } : {},
@@ -158,7 +167,7 @@ export function run(argv: string[]): number {
 
   if (command === "doctor") {
     const vaultDir = argv[1] ?? process.cwd();
-    const checks = doctorVault(vaultDir);
+    const checks = doctorOperation(vaultDir);
     for (const check of checks) {
       process.stdout.write(`${check.status}\t${check.name}\t${check.message}\n`);
     }
@@ -176,8 +185,14 @@ const isDirectInvocation =
   process.argv[1] === fileURLToPath(import.meta.url);
 
 if (isDirectInvocation) {
-  const code = run(process.argv.slice(2));
-  process.exit(code);
+  run(process.argv.slice(2))
+    .then((code) => process.exit(code))
+    .catch((error: unknown) => {
+      process.stderr.write(
+        error instanceof Error ? `${error.message}\n` : `${String(error)}\n`,
+      );
+      process.exit(1);
+    });
 }
 
 function parseLogArgs(args: string[]): {
@@ -194,4 +209,21 @@ function parseLogArgs(args: string[]): {
   const message = remaining[0] ?? null;
   const vaultDir = remaining[1] ?? process.cwd();
   return { message, type, vaultDir };
+}
+
+function parseDirAndBackend(args: string[]): {
+  vaultDir: string;
+  backend: string;
+} {
+  let backend = "json-index";
+  const remaining = [...args];
+  const backendIndex = remaining.indexOf("--backend");
+  if (backendIndex !== -1) {
+    backend = remaining[backendIndex + 1] ?? "json-index";
+    remaining.splice(backendIndex, 2);
+  }
+  return {
+    vaultDir: remaining[0] ?? process.cwd(),
+    backend,
+  };
 }

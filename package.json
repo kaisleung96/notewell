@@ -8,13 +8,15 @@
   },
   "scripts": {
     "test": "vitest run",
+    "test:e2e": "vitest run test/e2e",
     "test:watch": "vitest",
     "build": "tsc",
     "dev": "tsx src/cli.ts"
   },
   "files": [
     "dist",
-    "src/templates"
+    "src/templates",
+    "docs"
   ],
   "engines": {
     "node": ">=20"

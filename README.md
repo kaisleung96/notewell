@@ -16,6 +16,15 @@ schema/     Agent instructions and maintenance rules.
 The cache is derived. Delete `.notewell/` whenever you want; `notewell index`
 rebuilds it from Markdown.
 
+## 1.0 Guarantee
+
+- Markdown vault is the source of truth.
+- JSON index is always available through `.notewell/index.json`.
+- MCP is optional.
+- Embeddings are optional, including SQLite, FlexSearch, or vector services.
+- Claude, OpenClaw, and Cursor can use the baseline workflow with only Markdown,
+  `notewell index`, `notewell search`, `notewell lint`, and `notewell doctor`.
+
 ## Quickstart
 
 ```bash
