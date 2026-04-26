@@ -56,3 +56,9 @@ export type LintFinding = {
   path: string;
   message: string;
 };
+
+export type DoctorCheck = {
+  name: string;
+  status: "ok" | "warn" | "fail";
+  message: string;
+};

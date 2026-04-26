@@ -9,6 +9,7 @@
 import { fileURLToPath } from "node:url";
 import process from "node:process";
 
+import { doctorVault } from "./core/doctor.js";
 import { buildIndex } from "./core/indexer.js";
 import { initVault } from "./core/init.js";
 import { lintVault } from "./core/lint.js";
@@ -153,6 +154,15 @@ export function run(argv: string[]): number {
     );
     process.stdout.write(entry);
     return 0;
+  }
+
+  if (command === "doctor") {
+    const vaultDir = argv[1] ?? process.cwd();
+    const checks = doctorVault(vaultDir);
+    for (const check of checks) {
+      process.stdout.write(`${check.status}\t${check.name}\t${check.message}\n`);
+    }
+    return checks.some((check) => check.status === "fail") ? 1 : 0;
   }
 
   process.stderr.write(
