@@ -7,8 +7,9 @@
  * doctor).
  */
 
-import { realpathSync } from "node:fs";
+import { realpathSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
+import { resolve, dirname } from "node:path";
 import process from "node:process";
 
 import { initVault, type AgentAdapter } from "./core/init.js";
@@ -23,7 +24,10 @@ import {
 import { getSearchBackend } from "./core/search-backend.js";
 import type { AssetRecord, SearchResult } from "./core/types.js";
 
-const VERSION = "0.0.1";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const { version: VERSION } = JSON.parse(
+  readFileSync(resolve(__dirname, "../package.json"), "utf8")
+);
 const SUPPORTED_AGENT_ADAPTERS = ["claude", "cursor", "codex"] as const;
 
 const COMMANDS = [

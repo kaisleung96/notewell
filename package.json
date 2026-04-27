@@ -4,7 +4,7 @@
   "description": "A lightweight Markdown-first personal LLM wiki CLI",
   "type": "module",
   "bin": {
-    "notewell": "./dist/cli.js"
+    "notewell": "dist/cli.js"
   },
   "scripts": {
     "test": "vitest run",
