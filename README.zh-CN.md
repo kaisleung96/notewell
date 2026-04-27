@@ -46,7 +46,7 @@ Notewell 在 wiki 之外增加**派生**的 `.notewell/` JSON 索引，使
 ## 目录分层
 
 ```text
-raw/        不可变的原始资料。
+raw/        不可变的原始资料；附件建议放在 raw/assets/。
 wiki/       长期维护的结构化知识。
 .notewell/  可重建的 JSON 缓存。
 AGENTS.md   通用 Agent 指南。
@@ -55,6 +55,18 @@ CLAUDE.md   Claude 专用补充指南。
 
 `.notewell/` 是派生缓存，可以删除；运行 `notewell index` 后会从
 Markdown 重新生成。
+
+## 引用资产
+
+截图、架构图、PDF 等附件建议统一放在 `raw/assets/`。`notewell index`
+只会把被 `wiki/**/*.md` 引用过的 assets 加入默认索引；未被 wiki 页面引用的
+`raw/assets/` 文件仍只是原始资料，不会出现在默认搜索结果中。
+
+引用可以使用 Obsidian 语法，例如
+`![[raw/assets/diagram.png|架构图]]`，也可以使用标准 Markdown 语法，例如
+`![架构图](../raw/assets/diagram.png)`。`notewell search` 和
+`notewell query` 可能同时返回 `[page]` 与 `[asset]` 结果；当匹配页面引用了
+相关资产时，page 结果可能附带 asset evidence。
 
 ## 环境要求
 
@@ -149,9 +161,9 @@ PDF、工单长串、重要邮件、架构图、会议 slides 等）。在 `wiki
 - `notewell init --agent codex [dir]`：额外生成 Codex 可用的 Notewell
   ingest、query、lint Skills。
 - `notewell index [dir]`：扫描 `wiki/**/*.md`，解析 frontmatter，提取
-  wikilinks，构建 backlinks，并写入 JSON 缓存。
-- `notewell search "query" [dir]`：读取 `.notewell/index.json`，输出带分数
-  和匹配原因的搜索结果。
+  wikilinks 和 referenced assets，构建 backlinks，并写入 JSON 缓存。
+- `notewell search "query" [dir]`：读取 `.notewell/index.json`，输出带分数、
+  匹配原因的 `[page]` 与 `[asset]` 结果；page 结果在相关时会附带 asset evidence。
 - `notewell query "query" [dir]`：`notewell search` 的别名，用于回答知识库问题。
 - `notewell lint [dir]`：检查无效 frontmatter、缺失元数据、断开的 wikilink、
   孤立页面，以及没有对应 source page 的 raw 文件。
@@ -160,7 +172,7 @@ PDF、工单长串、重要邮件、架构图、会议 slides 等）。在 `wiki
 
 ## 推荐工作流
 
-1. 把原始资料放到 `raw/`。
+1. 把原始资料放到 `raw/`，附件建议放在 `raw/assets/`。
 2. 在 `wiki/` 中维护长期有用的总结、概念、分析、问题和 playbook。
 3. 使用 wikilink 连接相关页面，例如 `[[wiki/concepts/recomposition]]`。
 4. 运行 `notewell index .`。

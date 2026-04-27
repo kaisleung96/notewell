@@ -35,7 +35,9 @@ For every selected source file:
 3. Translate non-Chinese material into concise Simplified Chinese in wiki pages.
 4. Preserve media assets in place. Link referenced assets with Obsidian syntax
    and explain how each asset relates to the knowledge point.
-5. Search or inspect existing wiki pages for related concepts before creating
+5. For important images and PDFs, add meaningful aliases, alt text, or link text
+   so local search can find the asset without OCR.
+6. Search or inspect existing wiki pages for related concepts before creating
    new pages.
 
 ## Write Wiki Pages

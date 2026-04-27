@@ -70,4 +70,21 @@ describe("docs", () => {
     expect(docs).toContain("notewell-query");
     expect(docs).toContain("Search the vault before answering");
   });
+
+  test("document referenced asset search behavior", () => {
+    const docs = [
+      readFileSync("README.md", "utf8"),
+      readFileSync("README.zh-CN.md", "utf8"),
+      readFileSync("docs/commands.md", "utf8"),
+      readFileSync("docs/obsidian.md", "utf8"),
+    ].join("\n");
+
+    expect(docs).toContain("raw/assets/");
+    expect(docs).toContain("referenced assets");
+    expect(docs).toContain("[page]");
+    expect(docs).toContain("[asset]");
+    expect(docs).toContain("asset evidence");
+    expect(docs).toContain("Obsidian");
+    expect(docs).toContain("standard Markdown");
+  });
 });

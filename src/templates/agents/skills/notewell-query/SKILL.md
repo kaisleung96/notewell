@@ -36,10 +36,12 @@ knowledge base".
 3. For a paragraph based on one page, one wikilink in that paragraph is enough.
    Do not over-cite every sentence.
 4. Quote exact source text with Markdown block quotes and name the source.
-5. If no vault evidence is found, say:
+5. When a page search result includes referenced assets, list the relevant asset
+   as supporting evidence if it helps answer or verify the question.
+6. If no vault evidence is found, say:
    `本地知识库中未找到相关内容，以下为通用知识回答：`
    before adding any general model knowledge.
-6. Never present a generic model answer as if it came from the vault.
+7. Never present a generic model answer as if it came from the vault.
 
 ## Durable Write Back
 

@@ -22,9 +22,11 @@ knowledge conflicts should be visible before they compound.
 4. Report dead wikilinks, orphan pages, pages missing from `wiki/index.md`, stale
    `wiki/index.md` entries, invalid frontmatter, source gaps, and pages with
    `## 知识冲突`.
-5. By default, stay read-only. Do not modify, delete, rename, or reclassify files
+5. Treat `missing_asset_reference` as a warning that a wiki page points to an
+   asset path that does not exist.
+6. By default, stay read-only. Do not modify, delete, rename, or reclassify files
    while producing the health report.
-6. Only fix issues after the user explicitly confirms the repair.
+7. Only fix issues after the user explicitly confirms the repair.
 
 ## Optional Inbox Checks
 

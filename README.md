@@ -50,7 +50,7 @@ external search) stays optional, as in the Gist’s “pick what you need” spi
 ## Layers
 
 ```text
-raw/        Immutable source material.
+raw/        Immutable source material. Put attachments in raw/assets/.
 wiki/       Durable synthesized knowledge.
 .notewell/  Rebuildable JSON cache.
 AGENTS.md   Shared agent guidance.
@@ -59,6 +59,19 @@ CLAUDE.md   Claude-specific guidance.
 
 The cache is derived. Delete `.notewell/` whenever you want; `notewell index`
 rebuilds it from Markdown.
+
+## Referenced Assets
+
+Store screenshots, diagrams, PDFs, and other attachments under `raw/assets/`.
+`notewell index` only adds assets to the default index when they are referenced
+from `wiki/**/*.md`; unrelated files in `raw/assets/` remain raw material until a
+wiki page cites them.
+
+Asset references can use Obsidian syntax such as
+`![[raw/assets/diagram.png|Architecture diagram]]` or standard Markdown syntax
+such as `![Architecture diagram](../raw/assets/diagram.png)`. `notewell search`
+and `notewell query` may return both `[page]` and `[asset]` results. Page results
+can include asset evidence when a matching page references relevant assets.
 
 ## Requirements
 
@@ -161,9 +174,10 @@ topic.
 - `notewell init --agent codex [dir]`: also create Codex skills for the
   Notewell ingest, query, and lint workflows.
 - `notewell index [dir]`: scan `wiki/**/*.md`, parse frontmatter, extract
-  wikilinks, build backlinks, and write JSON cache files.
+  wikilinks and referenced assets, build backlinks, and write JSON cache files.
 - `notewell search "query" [dir]`: search `.notewell/index.json` and print
-  ranked matches with scores and reasons.
+  ranked `[page]` and `[asset]` matches with scores, reasons, and asset evidence
+  on page results when relevant.
 - `notewell query "query" [dir]`: alias for `notewell search` when answering
   knowledge-base questions.
 - `notewell lint [dir]`: report invalid frontmatter, missing required metadata,
@@ -175,7 +189,7 @@ topic.
 
 ## Recommended Workflow
 
-1. Put original material in `raw/`.
+1. Put original material in `raw/`, with attachments in `raw/assets/`.
 2. Write durable summaries, concepts, analyses, questions, and playbooks in
    `wiki/`.
 3. Link related notes with wikilinks such as

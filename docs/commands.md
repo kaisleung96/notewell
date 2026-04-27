@@ -34,14 +34,18 @@ Use `--yes` for non-interactive setup with the provided path and agent flags.
 ## `notewell index [dir]`
 
 Scans `wiki/**/*.md`, parses frontmatter, extracts wikilinks, builds backlinks,
-and writes `.notewell/index.json`, `.notewell/backlinks.json`, and
-`.notewell/manifest.json`.
+records referenced assets, and writes `.notewell/index.json`,
+`.notewell/backlinks.json`, and `.notewell/manifest.json`. Only assets referenced
+from wiki pages enter the default index; `raw/assets/` files without wiki
+references remain raw material.
 
 ## `notewell search "query" [dir]`
 
 Reads `.notewell/index.json`, ranks candidate pages, and prints matching pages
-with scores and reasons. The CLI returns evidence; the agent does synthesis.
-`notewell query "query" [dir]` is an alias for the same knowledge-base lookup.
+and assets with `[page]` or `[asset]` labels, scores, and reasons. Page results
+may include referenced asset evidence when relevant. The CLI returns evidence;
+the agent does synthesis. `notewell query "query" [dir]` is an alias for the same
+knowledge-base lookup.
 
 ## `notewell lint [dir]`
 

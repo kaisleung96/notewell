@@ -9,6 +9,16 @@ Use `raw/assets/` as the default attachment path. Screenshots, diagrams, PDFs,
 and exported notes stay in `raw/`; durable summaries and concepts stay in
 `wiki/`.
 
+Notewell indexes assets when `wiki/**/*.md` references them, so keep important
+media linked from durable wiki pages. Both Obsidian embeds and links, such as
+`![[raw/assets/diagram.png|Architecture diagram]]` or
+`[[raw/assets/spec.pdf|Spec PDF]]`, and standard Markdown references, such as
+`![Architecture diagram](../raw/assets/diagram.png)` or
+`[Spec PDF](../raw/assets/spec.pdf)`, are supported.
+
+For important images and PDFs, add meaningful aliases, alt text, or link text.
+Those labels make local search useful even without OCR.
+
 ## Templates
 
 Recommended template targets:

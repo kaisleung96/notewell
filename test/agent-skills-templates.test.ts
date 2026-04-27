@@ -46,6 +46,8 @@ describe("agent skill templates", () => {
     expect(template).toContain("Read `wiki/index.md` first");
     expect(template).toContain("notewell query");
     expect(template).toContain("[[Page Title]]");
+    expect(template).toContain("referenced assets");
+    expect(template).toContain("supporting evidence");
     expect(template).toContain("本地知识库中未找到相关内容，以下为通用知识回答");
     expect(template).toContain("wiki/analyses/");
     expect(template).toContain("notewell log --type query");
@@ -61,6 +63,8 @@ describe("agent skill templates", () => {
     expect(template).toContain("wiki/sources/");
     expect(template).toContain("wiki/sources/<raw relative path>.md");
     expect(template).toContain("core thesis");
+    expect(template).toContain("aliases, alt text, or link text");
+    expect(template).toContain("without OCR");
     expect(template).toContain("Conflict Handling");
     expect(template).toContain("notewell index .");
     expect(template).toContain("notewell lint .");
@@ -74,6 +78,7 @@ describe("agent skill templates", () => {
     expect(template).toContain("stale index entries");
     expect(template).toContain("unregistered pages");
     expect(template).toContain("## 知识冲突");
+    expect(template).toContain("missing_asset_reference");
     expect(template).toContain("read-only");
     expect(template).toContain("知识库健康体检报告");
     expect(template).toContain("orphan pages");
