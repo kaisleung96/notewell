@@ -4,6 +4,7 @@ import {
   mkdirSync,
   readdirSync,
   readFileSync,
+  realpathSync,
   statSync,
   writeFileSync,
 } from "node:fs";
@@ -155,6 +156,9 @@ function buildAssetRecords(
       if (!existsSync(absoluteAssetPath) || !statSync(absoluteAssetPath).isFile()) {
         continue;
       }
+      if (!isRealPathWithinAssetRoot(vaultDir, absoluteAssetPath)) {
+        continue;
+      }
 
       let asset = assets.get(reference.asset_path);
       if (!asset) {
@@ -219,7 +223,7 @@ export function extractAssetReferences(
 
   const markdownPattern = /(!?)\[([^\]]*)\]\(([^)]+)\)/g;
   for (const match of markdown.matchAll(markdownPattern)) {
-    const rawTarget = match[3]?.trim();
+    const rawTarget = parseMarkdownDestination(match[3] ?? "");
     if (!rawTarget) {
       continue;
     }
@@ -232,6 +236,22 @@ export function extractAssetReferences(
   }
 
   return references;
+}
+
+function parseMarkdownDestination(rawTarget: string): string | null {
+  const trimmed = rawTarget.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  if (trimmed.startsWith("<")) {
+    const closingIndex = trimmed.indexOf(">");
+    const destination = closingIndex === -1 ? "" : trimmed.slice(1, closingIndex);
+    return destination.trim() || null;
+  }
+
+  const whitespaceIndex = trimmed.search(/\s/);
+  return (whitespaceIndex === -1 ? trimmed : trimmed.slice(0, whitespaceIndex)) || null;
 }
 
 function addAssetReference(
@@ -283,6 +303,19 @@ function isExternalOrAnchorTarget(rawTarget: string): boolean {
     rawTarget.startsWith("#") ||
     rawTarget.startsWith("//") ||
     /^[a-z][a-z0-9+.-]*:/i.test(rawTarget)
+  );
+}
+
+function isRealPathWithinAssetRoot(
+  vaultDir: string,
+  absoluteAssetPath: string,
+): boolean {
+  const realAssetPath = realpathSync(absoluteAssetPath);
+  const realAssetsDir = realpathSync(path.join(vaultDir, "raw", "assets"));
+  const relativeRealPath = path.relative(realAssetsDir, realAssetPath);
+  return (
+    relativeRealPath === "" ||
+    (!relativeRealPath.startsWith("..") && !path.isAbsolute(relativeRealPath))
   );
 }
 

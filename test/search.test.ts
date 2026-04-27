@@ -34,6 +34,59 @@ afterEach(() => {
 });
 
 describe("searchIndex", () => {
+  test("treats missing assets in legacy indexes as empty", () => {
+    const vaultDir = createVault();
+    writePage(
+      vaultDir,
+      "wiki/legacy.md",
+      `---
+title: Legacy Index
+summary: Old cache shape.
+type: concept
+tags: [legacy]
+---
+
+Body text.
+`,
+    );
+    mkdirSync(path.join(vaultDir, ".notewell"), { recursive: true });
+    writeFileSync(
+      path.join(vaultDir, ".notewell", "index.json"),
+      JSON.stringify(
+        {
+          pages: [
+            {
+              slug: "wiki/legacy",
+              path: "wiki/legacy.md",
+              title: "Legacy Index",
+              summary: "Old cache shape.",
+              type: "concept",
+              domain: null,
+              tags: ["legacy"],
+              links: [],
+              backlinks: [],
+              updated_at: "2026-04-27T00:00:00+08:00",
+              hash: "legacy",
+            },
+          ],
+          generated_at: "2026-04-27T00:00:00+08:00",
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+
+    expect(() => searchIndex(vaultDir, "legacy")).not.toThrow();
+    expect(searchIndex(vaultDir, "legacy")).toEqual([
+      expect.objectContaining({
+        kind: "page",
+        slug: "wiki/legacy",
+        assets: [],
+      }),
+    ]);
+  });
+
   test("ranks title, tag, summary, then body matches", () => {
     const vaultDir = createVault();
     writePage(

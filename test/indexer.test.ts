@@ -6,6 +6,7 @@ import {
   mkdtempSync,
   readFileSync,
   rmSync,
+  symlinkSync,
   writeFileSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
@@ -182,5 +183,73 @@ describe("buildIndex", () => {
     expect(backlinks).not.toHaveProperty("../../raw/assets/spec.pdf");
     expect(backlinks).not.toHaveProperty("raw/assets/architecture.png");
     expect(backlinks).not.toHaveProperty("raw/assets/spec.pdf");
+  });
+
+  test("indexes Markdown asset links with optional titles", () => {
+    const vaultDir = mkdtempSync(path.join(tmpdir(), "notewell-titled-assets-"));
+    createdTempDirs.push(vaultDir);
+    const wikiDir = path.join(vaultDir, "wiki");
+    const assetsDir = path.join(vaultDir, "raw", "assets");
+    mkdirSync(wikiDir, { recursive: true });
+    mkdirSync(assetsDir, { recursive: true });
+
+    writeFileSync(path.join(assetsDir, "architecture.png"), "fake image");
+    writeFileSync(path.join(assetsDir, "spec.pdf"), "fake pdf");
+    writeFileSync(
+      path.join(wikiDir, "architecture.md"),
+      [
+        "# Architecture",
+        "",
+        '![Architecture Diagram](../raw/assets/architecture.png "diagram title")',
+        '[Spec PDF](../raw/assets/spec.pdf "Spec title")',
+      ].join("\n"),
+    );
+
+    const index = buildIndex(vaultDir);
+
+    expect(index.assets.map((asset) => asset.path).sort()).toEqual([
+      "raw/assets/architecture.png",
+      "raw/assets/spec.pdf",
+    ]);
+    const architecture = index.assets.find(
+      (asset) => asset.path === "raw/assets/architecture.png",
+    );
+    const spec = index.assets.find(
+      (asset) => asset.path === "raw/assets/spec.pdf",
+    );
+    expect(architecture?.references).toEqual([
+      expect.objectContaining({
+        label: "Architecture Diagram",
+        raw_target: "../raw/assets/architecture.png",
+      }),
+    ]);
+    expect(spec?.references).toEqual([
+      expect.objectContaining({
+        label: "Spec PDF",
+        raw_target: "../raw/assets/spec.pdf",
+      }),
+    ]);
+  });
+
+  test("does not index asset symlinks that point outside the vault", () => {
+    const vaultDir = mkdtempSync(path.join(tmpdir(), "notewell-symlink-assets-"));
+    const outsideDir = mkdtempSync(path.join(tmpdir(), "notewell-outside-"));
+    createdTempDirs.push(vaultDir, outsideDir);
+    const wikiDir = path.join(vaultDir, "wiki");
+    const assetsDir = path.join(vaultDir, "raw", "assets");
+    mkdirSync(wikiDir, { recursive: true });
+    mkdirSync(assetsDir, { recursive: true });
+
+    const outsideAssetPath = path.join(outsideDir, "outside.png");
+    writeFileSync(outsideAssetPath, "outside image");
+    symlinkSync(outsideAssetPath, path.join(assetsDir, "link.png"));
+    writeFileSync(
+      path.join(wikiDir, "architecture.md"),
+      ["# Architecture", "", "![Outside](../raw/assets/link.png)"].join("\n"),
+    );
+
+    const index = buildIndex(vaultDir);
+
+    expect(index.assets).toEqual([]);
   });
 });

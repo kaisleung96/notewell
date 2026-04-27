@@ -32,7 +32,13 @@ export function searchIndex(vaultDir: string, query: string): SearchResult[] {
 
 function readIndex(vaultDir: string): WikiIndex {
   const indexPath = path.join(vaultDir, ".notewell", "index.json");
-  return JSON.parse(readFileSync(indexPath, "utf8")) as WikiIndex;
+  const index = JSON.parse(readFileSync(indexPath, "utf8")) as WikiIndex & {
+    assets?: AssetRecord[];
+  };
+  return {
+    ...index,
+    assets: index.assets ?? [],
+  };
 }
 
 function scorePage(

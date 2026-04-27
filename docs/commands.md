@@ -49,9 +49,10 @@ knowledge-base lookup.
 
 ## `notewell lint [dir]`
 
-Checks missing or invalid metadata, broken wikilinks, orphan pages, and raw files
-without matching `wiki/sources/` pages. Errors exit with code `1`; warnings do
-not fail the command.
+Checks missing or invalid metadata, broken wikilinks, orphan pages, missing asset
+references (`missing_asset_reference`), and raw files without matching
+`wiki/sources/` pages. Errors exit with code `1`; warnings do not fail the
+command.
 
 ## `notewell log [--type type] "message" [dir]`
 
