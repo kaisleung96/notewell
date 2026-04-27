@@ -1,4 +1,4 @@
-import { existsSync, mkdtempSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
@@ -62,6 +62,61 @@ describe("cli help", () => {
     } finally {
       stdoutSpy.mockRestore();
       stderrSpy.mockRestore();
+    }
+  });
+
+  test("formats search output for page and asset results", async () => {
+    const vaultDir = mkdtempSync(path.join(tmpdir(), "notewell-cli-search-"));
+    initVault(vaultDir);
+    mkdirSync(path.join(vaultDir, "raw", "assets"), { recursive: true });
+    writeFileSync(
+      path.join(vaultDir, "raw", "assets", "architecture.png"),
+      "fake image",
+      "utf8",
+    );
+    writeFileSync(
+      path.join(vaultDir, "wiki", "architecture.md"),
+      [
+        "---",
+        "title: Architecture",
+        "summary: Architecture notes.",
+        "tags: [architecture]",
+        "updated: 2026-04-27",
+        "---",
+        "",
+        "![Architecture Diagram](../raw/assets/architecture.png)",
+      ].join("\n"),
+      "utf8",
+    );
+    indexOperation(vaultDir);
+    let stdout = "";
+    const stdoutSpy = vi
+      .spyOn(process.stdout, "write")
+      .mockImplementation((chunk: string | Uint8Array) => {
+        stdout += chunk.toString();
+        return true;
+      });
+
+    try {
+      const searchCode = await run(["search", "architecture", vaultDir]);
+      const searchOutput = stdout;
+      stdout = "";
+      const queryCode = await run(["query", "architecture", vaultDir]);
+
+      expect(searchCode).toBe(0);
+      expect(queryCode).toBe(0);
+      expect(searchOutput).toContain(
+        "[page] wiki/architecture\t230\ttitle match, tag match, summary match, body match\tArchitecture\n",
+      );
+      expect(searchOutput).toContain(
+        "  asset: raw/assets/architecture.png [markdown-image: Architecture Diagram]\n",
+      );
+      expect(searchOutput).toContain(
+        "[asset] raw/assets/architecture.png\t293\ttitle match, path match, label match, referencing page title match, referencing page summary match, referencing page tag match, reference boost\tarchitecture.png\n",
+      );
+      expect(stdout).toBe(searchOutput);
+    } finally {
+      stdoutSpy.mockRestore();
     }
   });
 

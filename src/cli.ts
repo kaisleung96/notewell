@@ -21,6 +21,7 @@ import {
   searchOperation,
 } from "./core/operations.js";
 import { getSearchBackend } from "./core/search-backend.js";
+import type { AssetRecord, SearchResult } from "./core/types.js";
 
 const VERSION = "0.0.1";
 const SUPPORTED_AGENT_ADAPTERS = ["claude", "cursor", "codex"] as const;
@@ -174,10 +175,9 @@ export async function run(argv: string[]): Promise<number> {
         ? searchOperation(vaultDir, query)
         : await getSearchBackend(backend).search(vaultDir, query);
     for (const result of results) {
-      const displayPath = result.kind === "page" ? result.slug : result.path;
-      process.stdout.write(
-        `${displayPath}\t${result.score}\t${result.reasons.join(", ")}\t${result.title}\n`,
-      );
+      for (const line of formatSearchResult(result)) {
+        process.stdout.write(`${line}\n`);
+      }
     }
     return 0;
   }
@@ -357,4 +357,28 @@ function parseDirAndBackend(args: string[]): {
     vaultDir: remaining[0] ?? process.cwd(),
     backend,
   };
+}
+
+function formatSearchResult(result: SearchResult): string[] {
+  const reasons = result.reasons.join(", ");
+  if (result.kind === "asset") {
+    return [`[asset] ${result.path}\t${result.score}\t${reasons}\t${result.title}`];
+  }
+
+  return [
+    `[page] ${result.slug}\t${result.score}\t${reasons}\t${result.title}`,
+    ...result.assets.map((asset) => formatPageAssetEvidence(result.slug, asset)),
+  ];
+}
+
+function formatPageAssetEvidence(pageSlug: string, asset: AssetRecord): string {
+  const reference =
+    asset.references.find((candidate) => candidate.page_slug === pageSlug) ??
+    asset.references[0];
+  if (!reference) {
+    return `  asset: ${asset.path}`;
+  }
+
+  const label = reference.label ? `: ${reference.label}` : "";
+  return `  asset: ${asset.path} [${reference.reference_syntax}${label}]`;
 }
