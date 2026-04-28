@@ -41,6 +41,42 @@ Missing Markdown asset: ![Missing](../raw/assets/missing-from-markdown.png)
   return dir;
 }
 
+function createKnowledgeConflictVault(heading: string): string {
+  const dir = mkdtempSync(path.join(tmpdir(), "notewell-conflict-lint-"));
+  createdTempDirs.push(dir);
+
+  mkdirSync(path.join(dir, "wiki"), { recursive: true });
+  writeFileSync(
+    path.join(dir, "wiki", "index.md"),
+    `---
+title: Index
+summary: Test index.
+tags: [index]
+---
+
+[[wiki/conflict]]
+`,
+    "utf8",
+  );
+  writeFileSync(
+    path.join(dir, "wiki", "conflict.md"),
+    `---
+title: Conflict
+summary: Contains unresolved conflict.
+tags: [conflict]
+---
+
+${heading}
+
+- Source A says one thing.
+- Source B says another.
+`,
+    "utf8",
+  );
+
+  return dir;
+}
+
 afterEach(() => {
   for (const dir of createdTempDirs.splice(0)) {
     rmSync(dir, { recursive: true, force: true });
@@ -148,6 +184,20 @@ describe("lintVault", () => {
         expect.objectContaining({
           code: "missing_asset_reference",
           message: expect.stringContaining("raw/assets/architecture.png"),
+        }),
+      ]),
+    );
+  });
+
+  test("detects English knowledge conflict headings", () => {
+    const findings = lintVault(createKnowledgeConflictVault("## Knowledge Conflict"));
+
+    expect(findings).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "unresolved_knowledge_conflict",
+          path: "wiki/conflict.md",
+          severity: "warning",
         }),
       ]),
     );

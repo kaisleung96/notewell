@@ -163,7 +163,7 @@ function lintIndexRegistration(pages: PageInfo[], findings: LintFinding[]): void
 
 function lintKnowledgeConflicts(pages: PageInfo[], findings: LintFinding[]): void {
   for (const page of pages) {
-    if (/^##\s+知识冲突(?:\s|$)/m.test(page.body)) {
+    if (hasKnowledgeConflictHeading(page.body)) {
       findings.push(
         warning(
           "unresolved_knowledge_conflict",
@@ -173,6 +173,20 @@ function lintKnowledgeConflicts(pages: PageInfo[], findings: LintFinding[]): voi
       );
     }
   }
+}
+
+function hasKnowledgeConflictHeading(markdown: string): boolean {
+  const headingPattern = /^##\s+(.+)$/gm;
+  for (const match of markdown.matchAll(headingPattern)) {
+    const heading = match[1]?.trim().toLowerCase();
+    if (!heading) {
+      continue;
+    }
+    if (heading.includes("conflict") || heading.includes("冲突")) {
+      return true;
+    }
+  }
+  return false;
 }
 
 function lintRawSources(vaultDir: string, findings: LintFinding[]): void {

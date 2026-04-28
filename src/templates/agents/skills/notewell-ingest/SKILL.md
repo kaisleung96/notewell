@@ -20,7 +20,7 @@ human or LLM can use later.
 3. Treat implicit requests such as "ingest this into the knowledge base" or
    "import this article" as ingestion. Do not persist ordinary summaries unless
    the user asks.
-4. Skip `raw/09-archive/**` and already-ingested raw files that have matching
+4. Skip already-ingested raw files that have matching
    `wiki/sources/<raw relative path>.md` pages.
 5. Treat `raw/` as immutable after source creation. Do not rewrite, move, or
    archive source files unless the user explicitly asks.

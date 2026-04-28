@@ -20,8 +20,8 @@ knowledge conflicts should be visible before they compound.
 2. Read `wiki/index.md` and scan `wiki/**/*.md`.
 3. Run `notewell lint .` and read every finding.
 4. Report dead wikilinks, orphan pages, pages missing from `wiki/index.md`, stale
-   `wiki/index.md` entries, invalid frontmatter, source gaps, and pages with
-   `## 知识冲突`.
+   `wiki/index.md` entries, invalid frontmatter, source gaps, and unresolved
+   knowledge conflict sections.
 5. Treat `missing_asset_reference` as a warning that a wiki page points to an
    asset path that does not exist.
 6. By default, stay read-only. Do not modify, delete, rename, or reclassify files
@@ -31,9 +31,8 @@ knowledge conflicts should be visible before they compound.
 ## Optional Inbox Checks
 
 Default health checks focus on `wiki/`. If the user asks to inspect pending
-ingestion work, also scan `raw/` while excluding `raw/09-archive/**`. Treat
-unreferenced media assets as yellow-light findings only; never delete assets
-automatically.
+ingestion work, also scan `raw/`. Treat unreferenced media assets as yellow-light
+findings only; never delete assets automatically.
 
 ## Report Format
 

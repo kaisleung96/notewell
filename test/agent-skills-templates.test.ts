@@ -59,7 +59,6 @@ describe("agent skill templates", () => {
 
     expect(template).toContain("AGENTS.md");
     expect(template).toContain("raw/");
-    expect(template).toContain("raw/09-archive/**");
     expect(template).toContain("wiki/sources/");
     expect(template).toContain("wiki/sources/<raw relative path>.md");
     expect(template).toContain("core thesis");
@@ -77,7 +76,8 @@ describe("agent skill templates", () => {
     expect(template).toContain("/health");
     expect(template).toContain("stale index entries");
     expect(template).toContain("unregistered pages");
-    expect(template).toContain("## 知识冲突");
+    expect(template).toContain("unresolved");
+    expect(template).toContain("knowledge conflict sections");
     expect(template).toContain("missing_asset_reference");
     expect(template).toContain("read-only");
     expect(template).toContain("知识库健康体检报告");
